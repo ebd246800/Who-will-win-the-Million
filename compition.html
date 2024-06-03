@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How will win the Mellion?</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: calc(100% - 20px);
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input {
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+        }
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            color: #333;
+        }
+        #adminControls {
+            display: none;
+        }
+        #result {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>How will win the Mellion?</h1>
+        <p id="account">Connecting...</p>
+        <p id="question"></p>
+        <div id="enterCompetition">
+            <input type="text" id="answerInput" placeholder="Your Answer">
+            <button id="enterButton">Enter Competition</button>
+        </div>
+        <div id="adminControls">
+            <h2>Admin Controls</h2>
+            <ul id="participantsList"></ul>
+            <input type="text" id="winnerInput" placeholder="Winner Address">
+            <button id="pickWinnerButton">Pick Winner</button>
+        </div>
+        <div id="result">
+            <h2>Competition Result</h2>
+            <p id="resultMessage"></p>
+        </div>
+    </div>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <script>
+        const contractAddress = '0x95ee0723f053c18c9cc378fdd0f940049692f4e4'; // Replace with your contract address
+        const contractAbi =[
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "answer",
+				"type": "string"
+			}
+		],
+		"name": "enter",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_winner",
+				"type": "address"
+			}
+		],
+		"name": "pickWinner",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_question",
+				"type": "string"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "checkIfWinner",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "participant",
+				"type": "address"
+			}
+		],
+		"name": "getAnswer",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getParticipants",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "isComplete",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "manager",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "participantAddresses",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "participants",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "answer",
+				"type": "string"
+			},
+			{
+				"internalType": "bool",
+				"name": "hasEntered",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "question",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "winner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+      ;
+
+        let provider, signer, contract;
+        let currentAccount = '';
+
+        async function init() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    signer = provider.getSigner();
+                    currentAccount = await signer.getAddress();
+                    contract = new ethers.Contract(contractAddress, contractAbi, signer);
+                    
+                    document.getElementById('account').innerText = `Connected: ${currentAccount}`;
+                    
+                    const question = await contract.question();
+                    document.getElementById('question').innerText = `Question: ${question}`;
+                    
+                    const manager = await contract.getManager();
+                    if (manager === currentAccount) {
+                        document.getElementById('adminControls').style.display = 'block';
+                        
+                    }
+                    
+                    const isComplete = await contract.isComplete();
+                    if (isComplete) {
+                        const isWinner = await contract.checkIfWinner();
+                        document.getElementById('result').style.display = 'block';
+                        document.getElementById('resultMessage').innerText = isWinner ? 'Congratulations! You are the winner!' : 'Sorry, you did not win this time.';
+                    }
+                    
+                    window.ethereum.on('accountsChanged', async () => {
+                        currentAccount = await signer.getAddress();
+                        document.getElementById('account').innerText = `Connected: ${currentAccount}`;
+                    });
+                } catch (error) {
+                    console.error('Error connecting to MetaMask:', error);
+                    
+                }
+            } else {
+                alert('Please install MetaMask to use this application.');
+            }
+        }
+
+        
+
+        async function enterCompetition() {
+            try {
+                const answer = document.getElementById('answerInput').value;
+                const tx = await contract.enter(answer);
+                await tx.wait();
+                alert('You have successfully entered the competition!');
+            } catch (err) {
+                console.error('Error entering competition:', err);
+                
+            }
+        }
+
+        async function pickWinner() {
+            try {
+                const winnerAddress = document.getElementById('winnerInput').value;
+                const tx = await contract.pickWinner(winnerAddress);
+                await tx.wait();
+                alert('Winner has been selected!');
+                
+            } catch (err) {
+                console.error('Error picking winner:', err);
+                alert('Error picking winner. Check console for details.');
+            }
+        }
+
+       ;
+
+        init();
+    </script>
+</body>
+</html>
